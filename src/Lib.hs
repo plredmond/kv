@@ -3,14 +3,19 @@ module Lib
     ( someFunc
     ) where
 
-import System.Environment (getArgs)
-import Receiver (receiver)
-import Forwarder (forwarder)
 import Control.Exception (bracket_)
+import Forwarder (forwarder)
+import RawForwarder (rawForwarder)
+import Receiver (receiver)
+import System.Environment (getArgs)
 
 someFunc :: IO ()
 someFunc = do
     getArgs >>= \case
+        ["raw", address] -> bracket_
+            (putStrLn $ "starting a raw-forwarder, " ++ address)
+            (putStrLn $ "raw-forwarder stopping, " ++ address)
+            (rawForwarder address)
         [address] -> bracket_
             (putStrLn $ "starting a forwarder, " ++ address)
             (putStrLn $ "forwarder stopping, " ++ address)
