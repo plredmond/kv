@@ -2,6 +2,7 @@ module Forwarder where
 
 import Control.Monad ((<=<))
 import Control.Monad.Trans (liftIO)
+import Network.Wai.Middleware.RequestLogger (logStdout)
 import Servant ((:<|>)(..))
 
 import qualified Data.ByteString.Lazy.Char8 as DBLC
@@ -20,6 +21,7 @@ forwarder upstreamRaw = do
     -- Run a server to handle downstream requests and fulfill them with
     -- upstream requests.
     NWHW.runEnv 80
+        . logStdout
         . S.serve API.proxy
         . forwardingEndpoints
         $ SC.mkClientEnv manager upstream

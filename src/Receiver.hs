@@ -1,7 +1,8 @@
 module Receiver where
 
-import Servant ((:<|>)(..))
 import Control.Monad.Trans (liftIO)
+import Network.Wai.Middleware.RequestLogger (logStdout)
+import Servant ((:<|>)(..))
 
 import qualified Control.Concurrent.MVar as MVar
 import qualified Data.Map.Strict as Map
@@ -17,6 +18,7 @@ receiver = do
     -- MVar, which might cause work to bleed into the wrong thread.
     state <- MVar.newMVar Map.empty
     NWHW.runEnv 80
+        . logStdout
         . S.serve API.proxy
         . receivingEndpoints
         $ state

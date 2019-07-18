@@ -10,6 +10,7 @@ dependencies:
 - servant
 - servant-client
 - servant-server
+- wai-extra
 - warp
 
 library:
