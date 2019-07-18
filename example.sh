@@ -37,11 +37,10 @@ curl localhost:8333/key-value-store/foo             -X GET       -w '\n'
 curl localhost:8333/it-forwards-invalid-requests    -X GET       -w '\n'
 # expect a 404
 
+read # leave servers running so other tests can be run
+
 # try killing the reciever and seeing how errors get propagated
 kill $recieverPID
 sleep 1
 curl localhost:8333/key-value-store/foo             -X GET       -w '\n'
 # expect a 503
-
-
-read # leave servers running so other tests can be run
