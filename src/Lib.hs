@@ -6,17 +6,20 @@ module Lib
 import System.Environment (getArgs)
 import Receiver (receiver)
 import Forwarder (forwarder)
+import Control.Exception (bracket_)
 
 someFunc :: IO ()
 someFunc = do
     getArgs >>= \case
-        [address] -> do
-            putStrLn "starting a forwarder"
-            forwarder address
-        [] -> do
-            putStrLn "starting a receiver"
+        [address] -> bracket_
+            (putStrLn $ "starting a forwarder, " ++ address)
+            (putStrLn $ "forwarder stopping, " ++ address)
+            (forwarder address)
+        [] -> bracket_
+            (putStrLn "starting a receiver")
+            (putStrLn "receiver stopping")
             receiver
         _ -> do
             putStrLn "USAGE:"
-            putStrLn "  receiver LISTEN-PORT"
-            putStrLn "  forwarder LISTEN-PORT RECEIVER-ADDR"
+            putStrLn "  env PORT=<PORT> kv-server # start a receiver"
+            putStrLn "  env PORT=<PORT> kv-server <RECEIVER-ADDR> # start a forwarder"
