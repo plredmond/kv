@@ -6,10 +6,13 @@ dependencies:
 - bytestring
 - containers
 - http-client
+- http-types
 - mtl
 - servant
 - servant-client
 - servant-server
+- text
+- utf8-string
 - wai-extra
 - warp
 

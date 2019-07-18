@@ -5,13 +5,13 @@ import Control.Monad.Trans (liftIO)
 import Network.Wai.Middleware.RequestLogger (logStdout)
 import Servant ((:<|>)(..))
 
-import qualified Data.ByteString.Lazy.Char8 as DBLC
 import qualified Network.HTTP.Client as NHC
 import qualified Network.Wai.Handler.Warp as NWHW
 import qualified Servant as S
 import qualified Servant.Client as SC
 
 import qualified API
+import qualified Errors
 
 forwarder :: String -> IO ()
 forwarder upstreamRaw = do
@@ -39,18 +39,10 @@ forwardingEndpoints clientEnv = handleGet :<|> handlePut :<|> handleDelete
     -- Transform a Client monad to a Handler monad.
     transformMonad :: SC.ClientM a -> S.Handler a
     transformMonad
-        = either (S.throwError . transformError) return
+        = either (S.throwError . Errors.transformError) return
         <=< liftIO
         . flip SC.runClientM clientEnv
     -- Define the endpoints.
     handleGet = callGet
     handlePut = callPut
     handleDelete = callDelete
-
--- | Transform upstream errors into downstream errors so that the forwarding
--- endpoints expose any failures that occur.
---
--- This is an exceedingly lazy implementation that just stuffs the client error
--- into the body of a 500.
-transformError :: SC.ServantError -> S.ServantErr
-transformError err = S.err500 { S.errBody = DBLC.pack $ show err}

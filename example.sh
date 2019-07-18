@@ -5,6 +5,7 @@ set -x
 stack build
 
 env PORT=8111 stack exec kv-server & # receiver
+recieverPID=$!
 env PORT=8222 stack exec kv-server localhost:8111 & # forwarder
 env PORT=8333 stack exec kv-server localhost:8222 & # forwarder
 
@@ -31,5 +32,12 @@ curl localhost:8333/key-value-store/meaning-of-life -X DELETE    -w '\n'
 # 84
 curl localhost:8333/key-value-store/foo             -X GET       -w '\n'
 # 2
+
+# try killing the reciever and seeing how errors get propagated
+kill $recieverPID
+sleep 1
+curl localhost:8333/key-value-store/foo             -X GET       -w '\n'
+# expect a 503
+
 
 read # leave servers running so other tests can be run
