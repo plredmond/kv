@@ -1,0 +1,27 @@
+name: kv
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- bytestring
+- containers
+- http-client
+- mtl
+- servant
+- servant-client
+- servant-server
+- warp
+
+library:
+  source-dirs: src
+
+executables:
+  kv-server:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - kv
