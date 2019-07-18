@@ -25,11 +25,12 @@ rawForwarder rawUpstreamAddress = do
 forwardAnyRequest :: Client.Request -> Client.Manager -> Server.Application
 forwardAnyRequest requestTemplate manager downstreamRequest sendResponse = do
     -- Make a request to send upstream.
-    request <- convertRequest requestTemplate downstreamRequest
+    upstreamRequest <- convertRequest requestTemplate downstreamRequest
     -- Execute the request and handle the response.
-    Client.withResponse request manager $ \response -> do
+    Client.withResponse upstreamRequest manager $ \upstreamResponse -> do
         -- Make a response to send back downstream.
-        convertResponse response >>= sendResponse
+        downstreamResponse <- convertResponse upstreamResponse
+        sendResponse downstreamResponse
 
 -- | To proxy the Wai request upstream, convert it to a HTTP-Client request.
 convertRequest :: Client.Request -> Server.Request -> IO Client.Request
