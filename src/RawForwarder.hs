@@ -11,14 +11,16 @@ import qualified Network.Wai.Handler.Warp as NWHW
 
 rawForwarder :: String -> IO ()
 rawForwarder rawUpstreamAddress = do
-    -- Make a request and a connection manager.
-    request <- Client.parseRequest rawUpstreamAddress
+    -- Make a request template and a connection manager. We'll reuse the
+    -- scheme, host, and port information in the request template, while
+    -- overwriting the other properties.
+    requestTemplate <- Client.parseRequest rawUpstreamAddress
     manager <- Client.newManager Client.defaultManagerSettings
     -- Run a server to handle downstream requests and fulfill them with
     -- upstream requests.
     NWHW.runEnv 80
         . logStdout
-        $ forwardAnyRequest request manager
+        $ forwardAnyRequest requestTemplate manager
 
 forwardAnyRequest :: Client.Request -> Client.Manager -> Server.Application
 forwardAnyRequest requestTemplate manager downstreamRequest sendResponse = do
