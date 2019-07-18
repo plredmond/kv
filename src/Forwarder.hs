@@ -39,7 +39,7 @@ forwardingEndpoints clientEnv = handleGet :<|> handlePut :<|> handleDelete
     -- Transform a Client monad to a Handler monad.
     transformMonad :: SC.ClientM a -> S.Handler a
     transformMonad
-        = either (S.throwError . translateError) return
+        = either (S.throwError . transformError) return
         <=< liftIO
         . flip SC.runClientM clientEnv
     -- Define the endpoints.
@@ -47,10 +47,10 @@ forwardingEndpoints clientEnv = handleGet :<|> handlePut :<|> handleDelete
     handlePut = callPut
     handleDelete = callDelete
 
--- | Translate upstream errors into downstream errors so that the forwarding
+-- | Transform upstream errors into downstream errors so that the forwarding
 -- endpoints expose any failures that occur.
 --
 -- This is an exceedingly lazy implementation that just stuffs the client error
 -- into the body of a 500.
-translateError :: SC.ServantError -> S.ServantErr
-translateError err = S.err500 { S.errBody = DBLC.pack $ show err}
+transformError :: SC.ServantError -> S.ServantErr
+transformError err = S.err500 { S.errBody = DBLC.pack $ show err}
