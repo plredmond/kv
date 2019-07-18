@@ -1,5 +1,9 @@
 # kv server and forwarder
 
+This is an implementation of a key value store with an HTTP interface. There's
+also a "forwarding" implementation that proxies requests to an upstream server
+implementing the same interface.
+
 ## build
 
 To build with stack do `stack build`.
